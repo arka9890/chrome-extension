@@ -10,53 +10,134 @@
   <div class="container">
     <header>
       <h1>Scraper Data Toko</h1>
-      <p class="subtitle">Ambil data, cari by nama toko, filter tanggal, export Excel</p>
+      <p class="subtitle">Master + Perbandingan website lain via ID Invoice</p>
     </header>
 
-    <div class="controls">
-      <input type="text" id="search" placeholder="Cari nama toko..." autocomplete="off">
-      <button id="refresh" title="Refresh data dari halaman aktif">Refresh</button>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="master">Master</button>
+      <button class="tab" data-tab="compare">Website 2</button>
+      <button class="tab" data-tab="comparison">Perbandingan</button>
     </div>
 
-    <div class="date-range">
-      <div class="date-range-group">
-        <label for="dateFrom">Dari:</label>
-        <input type="date" id="dateFrom">
+    <!-- Master Tab -->
+    <div class="tab-content active" id="tab-master">
+      <div class="controls">
+        <input type="text" id="searchMaster" placeholder="Cari nama toko..." autocomplete="off">
+        <button id="refreshMaster" title="Refresh data master">Refresh</button>
       </div>
-      <div class="date-range-group">
-        <label for="dateTo">Sampai:</label>
-        <input type="date" id="dateTo">
+
+      <div class="date-range">
+        <div class="date-range-group">
+          <label for="dateFromMaster">Dari:</label>
+          <input type="date" id="dateFromMaster">
+        </div>
+        <div class="date-range-group">
+          <label for="dateToMaster">Sampai:</label>
+          <input type="date" id="dateToMaster">
+        </div>
+        <button id="clearDateMaster" class="btn-clear-date" title="Hapus filter tanggal">X</button>
       </div>
-      <button id="clearDate" class="btn-clear-date" title="Hapus filter tanggal">X</button>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="label">Total Uang</span>
+          <span class="value total" id="totalMaster">Rp 0</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Total Kurang</span>
+          <span class="value kurang" id="totalKurangMaster">Rp 0</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Jumlah Data</span>
+          <span class="value" id="countMaster">0</span>
+        </div>
+      </div>
+
+      <div class="date-summary-dropdown" id="dateSummaryMaster" style="display:none;">
+        <div class="date-summary-header">
+          <label for="dateSummarySelectMaster">Ringkasan Per Tanggal:</label>
+          <select id="dateSummarySelectMaster">
+            <option value="">-- Pilih Tanggal --</option>
+          </select>
+        </div>
+        <div id="dateSummaryDetailMaster" class="date-summary-detail"></div>
+      </div>
+
+      <div class="list-container">
+        <div id="listMaster" class="list"></div>
+      </div>
     </div>
 
-    <div class="summary-card">
-      <div class="summary-row">
-        <span class="label">Total Uang</span>
-        <span class="value total" id="totalAll">Rp 0</span>
+    <!-- Website 2 Tab -->
+    <div class="tab-content" id="tab-compare">
+      <div class="controls">
+        <input type="text" id="searchCompare" placeholder="Cari invoice ID..." autocomplete="off">
+        <button id="refreshCompare" title="Refresh data website 2">Refresh</button>
       </div>
-      <div class="summary-row">
-        <span class="label">Total Kurang</span>
-        <span class="value kurang" id="totalKurang">Rp 0</span>
+
+      <div class="date-range">
+        <div class="date-range-group">
+          <label for="dateFromCompare">Dari:</label>
+          <input type="date" id="dateFromCompare">
+        </div>
+        <div class="date-range-group">
+          <label for="dateToCompare">Sampai:</label>
+          <input type="date" id="dateToCompare">
+        </div>
+        <button id="clearDateCompare" class="btn-clear-date" title="Hapus filter tanggal">X</button>
       </div>
-      <div class="summary-row">
-        <span class="label">Jumlah Data</span>
-        <span class="value" id="count">0</span>
+
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="label">Total Amount</span>
+          <span class="value total" id="totalCompare">Rp 0</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Jumlah Data</span>
+          <span class="value" id="countCompare">0</span>
+        </div>
+      </div>
+
+      <div class="list-container">
+        <div id="listCompare" class="list"></div>
       </div>
     </div>
 
-    <div class="date-summary-dropdown" id="dateSummary" style="display:none;">
-      <div class="date-summary-header">
-        <label for="dateSummarySelect">Ringkasan Per Tanggal:</label>
-        <select id="dateSummarySelect">
-          <option value="">-- Pilih Tanggal --</option>
+    <!-- Perbandingan Tab -->
+    <div class="tab-content" id="tab-comparison">
+      <div class="comparison-summary" id="comparisonSummary">
+        <div class="comp-stat">
+          <span class="comp-label">Cocok</span>
+          <span class="comp-value match" id="compMatch">0</span>
+        </div>
+        <div class="comp-stat">
+          <span class="comp-label">Hanya Master</span>
+          <span class="comp-value only-master" id="compOnlyMaster">0</span>
+        </div>
+        <div class="comp-stat">
+          <span class="comp-label">Hanya Web2</span>
+          <span class="comp-value only-compare" id="compOnlyCompare">0</span>
+        </div>
+        <div class="comp-stat">
+          <span class="comp-label">Beda Nominal</span>
+          <span class="comp-value mismatch" id="compMismatch">0</span>
+        </div>
+      </div>
+
+      <div class="comparison-filter">
+        <select id="comparisonFilter">
+          <option value="all">Semua</option>
+          <option value="match">Cocok (nominal sama)</option>
+          <option value="mismatch">Beda nominal</option>
+          <option value="only-master">Hanya di Master</option>
+          <option value="only-compare">Hanya di Website 2</option>
         </select>
       </div>
-      <div id="dateSummaryDetail" class="date-summary-detail"></div>
-    </div>
 
-    <div class="list-container">
-      <div id="list" class="list"></div>
+      <div class="list-container comp-list">
+        <div id="listComparison" class="list"></div>
+      </div>
     </div>
 
     <footer>

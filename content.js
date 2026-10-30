@@ -108,8 +108,9 @@
       // Cari txnId (angka di awal baris/konteks)
       const txnMatch = beforeInv.match(/(\d{4,})/);
 
-      // Cari amount: Rp diikuti angka (dengan atau tanpa spasi)
-      const amtMatch = context.match(/Rp\s*([\d.,]+)/);
+      // Cari amount: Rp diikuti angka (dengan atau tanpa spasi) - cari SETELAH invoice ID
+      const afterInv = text.substring(idx, Math.min(text.length, idx + 100));
+      const amtMatch = afterInv.match(/Rp\s*([\d.,]+)/);
 
       // Cari status
       const statMatch = context.match(/(Completed|Pending|Failed|Cancelled|Success|Processing|Done)/i);

@@ -79,7 +79,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-#searchMaster, #searchCompare {
+#searchMaster, #searchCompare, #searchComp {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid #ddd;
@@ -89,7 +89,7 @@ h1 {
   transition: border-color 0.2s;
 }
 
-#searchMaster:focus, #searchCompare:focus {
+#searchMaster:focus, #searchCompare:focus, #searchComp:focus {
   border-color: #4CAF50;
 }
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Scraper Data Toko",
-  "version": "1.1.0",
-  "description": "Ambil data dari website, cari by nama toko, filter tanggal range, dan hitung total uang",
+  "version": "1.2.0",
+  "description": "Ambil data dari 2 website, bandingkan via ID Invoice, filter tanggal, export Excel",
   "permissions": ["storage", "activeTab", "scripting", "downloads"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [

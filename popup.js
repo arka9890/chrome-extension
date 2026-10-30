@@ -542,18 +542,47 @@ async function refresh() {
 
 // ===== Clear =====
 async function clearData() {
-  if (!confirm('Hapus semua data yang tersimpan (Master + Website 2)?')) return;
+  let target = '';
+  let storageKey = '';
+  let confirmMsg = '';
+
+  if (currentTab === 'master') {
+    target = 'Master';
+    storageKey = 'masterData';
+    confirmMsg = 'Hapus semua data Master?';
+  } else if (currentTab === 'compare') {
+    target = 'Website 2';
+    storageKey = 'compareData';
+    confirmMsg = 'Hapus semua data Website 2?';
+  } else {
+    // Tab Perbandingan: tanya user
+    const choice = confirm('Hapus data Master? (OK = Master, Cancel = Website 2)');
+    if (choice) {
+      target = 'Master';
+      storageKey = 'masterData';
+      confirmMsg = 'Hapus semua data Master?';
+    } else {
+      target = 'Website 2';
+      storageKey = 'compareData';
+      confirmMsg = 'Hapus semua data Website 2?';
+    }
+  }
+
+  if (!confirm(confirmMsg)) return;
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab && tab.id) {
       chrome.tabs.sendMessage(tab.id, { action: 'clear' }, () => {});
     }
-    await chrome.storage.local.remove(['masterData', 'compareData', 'lastScraped', 'pageUrl', 'pageTitle']);
-    masterData = [];
-    compareData = [];
+    await chrome.storage.local.remove([storageKey]);
+    if (storageKey === 'masterData') {
+      masterData = [];
+    } else {
+      compareData = [];
+    }
     renderAll();
-    document.getElementById('statusText').textContent = 'Semua data dihapus.';
+    document.getElementById('statusText').textContent = 'Data ' + target + ' dihapus. Data lain tidak terpengaruh.';
   } catch (e) {
     console.error('Clear error:', e);
   }

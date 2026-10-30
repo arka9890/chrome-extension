@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Scraper Data Toko",
-  "version": "1.0.0",
-  "description": "Ambil data dari website, cari by nama toko, dan hitung total uang",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "version": "1.1.0",
+  "description": "Ambil data dari website, cari by nama toko, filter tanggal range, dan hitung total uang",
+  "permissions": ["storage", "activeTab", "scripting", "downloads"],
   "host_permissions": ["<all_urls>"],
   "content_scripts": [
     {

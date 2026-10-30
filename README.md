@@ -1,12 +1,14 @@
 # Scraper Data Toko - Chrome Extension
 
-Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko, dan menghitung total uang secara otomatis.
+Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko, filter per tanggal, dan menghitung total uang secara otomatis.
 
 ## Fitur
 
-- Ambil data otomatis dari halaman web
+- Ambil data otomatis dari halaman web (4 strategi scraping)
 - Cari berdasarkan nama toko (real-time)
-- Hitung total uang otomatis
+- Filter per tanggal (dropdown)
+- Ringkasan per tanggal (total & jumlah per hari)
+- Hitung total uang otomatis (sum semua data / hasil filter)
 - Tampilkan total kurang/sisa
 - Refresh manual dari popup
 - Hapus data tersimpan
@@ -25,8 +27,10 @@ Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko
 1. Buka website yang berisi data
 2. Klik ikon ekstensi
 3. Data otomatis terambil (atau klik Refresh)
-4. Ketik nama toko di search box
-5. Total uang ditampilkan otomatis
+4. Gunakan search box untuk cari nama toko
+5. Gunakan dropdown tanggal untuk filter per tanggal
+6. Ringkasan per tanggal ditampilkan di bawah kartu summary
+7. Total uang ditampilkan otomatis di kartu "Total Uang"
 
 ## Format Data yang Didukung
 
@@ -37,10 +41,12 @@ Total Rp 2,796,250 | Kurang Rp 2,796,250	ready
 
 ## Troubleshooting
 
-- Data tidak muncul: Pastikan halaman sudah fully loaded, lalu klik Refresh
+- Data tidak muncul / tidak lengkap: Pastikan halaman sudah fully loaded, lalu klik Refresh. Jika masih gagal, reload halaman (F5).
 - Format data berbeda: Sesuaikan regex di content.js
+- Filter tanggal kosong: Pastikan data berhasil di-scrape terlebih dahulu
 
 ## Catatan
 
 - Extension berjalan di semua website
 - Data tersimpan lokal di chrome.storage.local
+- Scraper menggunakan 4 pendekatan: block regex, line-by-line, independent matching, DOM-based

@@ -86,53 +86,127 @@
     const data = [];
     const seen = new Set();
 
-    // Regex: txnId  date time  ... System Invoice #invoiceId  Rp amount  status
-    const regex = /(\d+)\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})\s+.*?System\s+Invoice\s+#(\d+)\s+Rp([\d.,]+)\s+(\w+)/g;
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      const invoiceId = match[4];
+    // Pendekatan 1: Regex pada full text (fleksibel untuk tab/spasi)
+    // Cari pola: System Invoice #ID ... Rp AMOUNT ... STATUS
+    const regex1 = /System\s+Invoice\s+#(\d+)/g;
+    let m1;
+    while ((m1 = regex1.exec(text)) !== null) {
+      const invoiceId = m1[1];
       if (seen.has(invoiceId)) continue;
-      seen.add(invoiceId);
-      data.push({
-        source: 'compare',
-        txnId: match[1],
-        date: match[2],
-        time: match[3],
-        invoiceId: invoiceId,
-        amount: parseNumber(match[5]),
-        amountStr: match[5].trim(),
-        status: match[6].trim()
-      });
+
+      // Cari konteks di sekitar invoice ID (200 karakter sebelum dan sesudah)
+      const idx = m1.index;
+      const start = Math.max(0, idx - 200);
+      const end = Math.min(text.length, idx + 200);
+      const context = text.substring(start, end);
+
+      // Cari tanggal di konteks (sebelum System Invoice)
+      const beforeInv = text.substring(Math.max(0, idx - 200), idx);
+      const dateMatch = beforeInv.match(/(\d{4}-\d{2}-\d{2})/);
+      const timeMatch = beforeInv.match(/(\d{2}:\d{2}:\d{2})/);
+
+      // Cari txnId (angka di awal baris/konteks)
+      const txnMatch = beforeInv.match(/(\d{4,})/);
+
+      // Cari amount: Rp diikuti angka (dengan atau tanpa spasi)
+      const amtMatch = context.match(/Rp\s*([\d.,]+)/);
+
+      // Cari status
+      const statMatch = context.match(/(Completed|Pending|Failed|Cancelled|Success|Processing|Done)/i);
+
+      if (dateMatch) {
+        seen.add(invoiceId);
+        data.push({
+          source: 'compare',
+          txnId: txnMatch ? txnMatch[1] : '',
+          date: dateMatch[1],
+          time: timeMatch ? timeMatch[1] : '',
+          invoiceId: invoiceId,
+          amount: amtMatch ? parseNumber(amtMatch[1]) : 0,
+          amountStr: amtMatch ? amtMatch[1].trim() : '',
+          status: statMatch ? statMatch[1] : ''
+        });
+      }
     }
 
-    // Fallback: line-by-line
+    // Pendekatan 2: Line-by-line (jika pendekatan 1 kosong)
     if (data.length === 0) {
       const lines = text.split(/\r?\n/);
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed.includes('System Invoice')) continue;
-        const m = trimmed.match(/(\d+)\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2})/);
+
         const inv = trimmed.match(/System\s+Invoice\s+#(\d+)/);
-        const amt = trimmed.match(/Rp([\d.,]+)/);
-        const stat = trimmed.match(/(Completed|Pending|Failed|Cancelled|Success)/i);
-        if (m && inv) {
-          const invoiceId = inv[1];
-          if (seen.has(invoiceId)) continue;
+        if (!inv) continue;
+        const invoiceId = inv[1];
+        if (seen.has(invoiceId)) continue;
+
+        const dateM = trimmed.match(/(\d{4}-\d{2}-\d{2})/);
+        const timeM = trimmed.match(/(\d{2}:\d{2}:\d{2})/);
+        const amtM = trimmed.match(/Rp\s*([\d.,]+)/);
+        const statM = trimmed.match(/(Completed|Pending|Failed|Cancelled|Success|Processing|Done)/i);
+
+        // txnId: angka pertama di line (sebelum tanggal)
+        const txnM = trimmed.match(/^(\d+)/);
+
+        if (dateM) {
           seen.add(invoiceId);
           data.push({
             source: 'compare',
-            txnId: m[1],
-            date: m[2],
-            time: m[3],
+            txnId: txnM ? txnM[1] : '',
+            date: dateM[1],
+            time: timeM ? timeM[1] : '',
             invoiceId: invoiceId,
-            amount: amt ? parseNumber(amt[1]) : 0,
-            amountStr: amt ? amt[1].trim() : '',
-            status: stat ? stat[1] : ''
+            amount: amtM ? parseNumber(amtM[1]) : 0,
+            amountStr: amtM ? amtM[1].trim() : '',
+            status: statM ? statM[1] : ''
           });
         }
       }
     }
 
+    // Pendekatan 3: DOM-based (cari elemen tabel/baris yang mengandung System Invoice)
+    if (data.length === 0) {
+      const allElements = document.querySelectorAll('tr, div, span, td, li');
+      const processed = new Set();
+      allElements.forEach(el => {
+        const elText = (el.innerText || el.textContent || '').trim();
+        if (!elText || elText.length > 300 || elText.length < 20) return;
+        if (!elText.includes('System Invoice')) return;
+        if (processed.has(elText)) return;
+        processed.add(elText);
+
+        const inv = elText.match(/System\s+Invoice\s+#(\d+)/);
+        if (!inv) return;
+        const invoiceId = inv[1];
+        if (seen.has(invoiceId)) return;
+
+        const dateM = elText.match(/(\d{4}-\d{2}-\d{2})/);
+        const timeM = elText.match(/(\d{2}:\d{2}:\d{2})/);
+        const amtM = elText.match(/Rp\s*([\d.,]+)/);
+        const statM = elText.match(/(Completed|Pending|Failed|Cancelled|Success|Processing|Done)/i);
+        const txnM = elText.match(/^(\d+)/);
+
+        if (dateM) {
+          seen.add(invoiceId);
+          data.push({
+            source: 'compare',
+            txnId: txnM ? txnM[1] : '',
+            date: dateM[1],
+            time: timeM ? timeM[1] : '',
+            invoiceId: invoiceId,
+            amount: amtM ? parseNumber(amtM[1]) : 0,
+            amountStr: amtM ? amtM[1].trim() : '',
+            status: statM ? statM[1] : ''
+          });
+        }
+      });
+    }
+
+    console.log('[Scraper Compare] Ditemukan:', data.length, 'data');
+    if (data.length > 0) {
+      console.log('[Scraper Compare] Contoh:', JSON.stringify(data[0]));
+    }
     return data;
   }
 

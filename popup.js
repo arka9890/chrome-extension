@@ -86,7 +86,7 @@ function render() {
     const empty = document.createElement('div');
     empty.className = 'empty';
     if (allData.length === 0) {
-      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik 🔄 Refresh';
+      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik ð Refresh';
     } else {
       empty.innerHTML = 'Tidak ada data yang cocok dengan filter.';
     }
@@ -150,7 +150,7 @@ function exportToExcel() {
     d.status || ''
   ]);
 
-  const csvContent = BOM + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const csvContent = BOM + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
 
   // Download
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -179,8 +179,8 @@ async function loadData() {
     if (result.lastScraped) {
       const date = new Date(result.lastScraped);
       let statusText = 'Terakhir diambil: ' + date.toLocaleString('id-ID');
-      if (pageTitle) statusText += ' • ' + pageTitle;
-      if (allData.length > 0) statusText += ' • ' + allData.length + ' data';
+      if (pageTitle) statusText += ' â¢ ' + pageTitle;
+      if (allData.length > 0) statusText += ' â¢ ' + allData.length + ' data';
       document.getElementById('statusText').textContent = statusText;
     } else {
       document.getElementById('statusText').textContent = 'Belum ada data. Buka halaman target lalu klik Refresh.';
@@ -194,7 +194,7 @@ async function loadData() {
 async function refresh() {
   const btn = document.getElementById('refresh');
   btn.disabled = true;
-  btn.textContent = '⏳';
+  btn.textContent = 'â³';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -204,7 +204,7 @@ async function refresh() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
       btn.disabled = false;
-      btn.textContent = '🔄';
+      btn.textContent = 'ð';
 
       if (chrome.runtime.lastError) {
         document.getElementById('statusText').textContent = 'Error: ' + chrome.runtime.lastError.message + '. Reload halaman (F5) lalu coba lagi.';
@@ -228,7 +228,7 @@ async function refresh() {
     });
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = '🔄';
+    btn.textContent = 'ð';
     document.getElementById('statusText').textContent = 'Error: ' + e.message;
   }
 }

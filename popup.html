@@ -10,12 +10,19 @@
   <div class="container">
     <header>
       <h1>📋 Scraper Data Toko</h1>
-      <p class="subtitle">Ambil data dari website, cari by nama toko</p>
+      <p class="subtitle">Ambil data, cari by nama toko, filter per tanggal</p>
     </header>
 
     <div class="controls">
       <input type="text" id="search" placeholder="🔍 Cari nama toko..." autocomplete="off">
       <button id="refresh" title="Refresh data dari halaman aktif">🔄</button>
+    </div>
+
+    <div class="filter-row">
+      <label for="dateFilter">📅 Tanggal:</label>
+      <select id="dateFilter">
+        <option value="">Semua Tanggal</option>
+      </select>
     </div>
 
     <div class="summary-card">
@@ -31,6 +38,11 @@
         <span class="label">📊 Jumlah Data</span>
         <span class="value" id="count">0</span>
       </div>
+    </div>
+
+    <div class="date-summary" id="dateSummary" style="display:none;">
+      <h3>📅 Ringkasan Per Tanggal</h3>
+      <div id="dateSummaryList"></div>
     </div>
 
     <div class="list-container">

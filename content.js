@@ -153,14 +153,27 @@
       });
     }
 
-    // Update storage jika data ditemukan
+    // Merge data dengan yang sudah ada (akumulasi dari multiple halaman)
     if (data.length > 0) {
       try {
-        chrome.storage.local.set({
-          scrapedData: data,
-          lastScraped: new Date().toISOString(),
-          pageUrl: window.location.href,
-          pageTitle: document.title
+        chrome.storage.local.get(['scrapedData'], (result) => {
+          const existing = result.scrapedData || [];
+          const seen = new Set(existing.map(d => d.id + '|' + d.date));
+          const merged = [...existing];
+          data.forEach(d => {
+            const key = d.id + '|' + d.date;
+            if (!seen.has(key)) {
+              seen.add(key);
+              merged.push(d);
+            }
+          });
+          chrome.storage.local.set({
+            scrapedData: merged,
+            lastScraped: new Date().toISOString(),
+            pageUrl: window.location.href,
+            pageTitle: document.title
+          });
+          console.log('[Scraper] Total data tersimpan:', merged.length, '(baru:', data.length, ')');
         });
       } catch (e) {
         console.error('[Scraper] Storage error:', e);

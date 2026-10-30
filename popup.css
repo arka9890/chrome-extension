@@ -6,8 +6,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  width: 420px;
-  max-height: 600px;
+  width: 440px;
+  max-height: 620px;
   background: #f8f9fa;
   color: #333;
 }
@@ -35,7 +35,7 @@ h1 {
 .controls {
   display: flex;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 #search {
@@ -70,6 +70,34 @@ h1 {
 #refresh:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filter-row label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+}
+
+#dateFilter {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+#dateFilter:focus {
+  border-color: #4CAF50;
 }
 
 .summary-card {
@@ -109,8 +137,50 @@ h1 {
   color: #c62828;
 }
 
+.date-summary {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.date-summary h3 {
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.date-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.date-summary-item:last-child {
+  border-bottom: none;
+}
+
+.date-summary-item .date-label {
+  color: #555;
+}
+
+.date-summary-item .date-total {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.date-summary-item .date-count {
+  color: #999;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
 .list-container {
-  max-height: 320px;
+  max-height: 280px;
   overflow-y: auto;
   margin-bottom: 8px;
 }

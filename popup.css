@@ -163,46 +163,67 @@ h1 {
   color: #c62828;
 }
 
-.date-summary {
+.date-summary-dropdown {
   background: white;
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px 12px;
   margin-bottom: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.date-summary h3 {
-  font-size: 13px;
-  margin-bottom: 8px;
-  color: #1a1a1a;
+.date-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.date-summary-item {
+.date-summary-header label {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+#dateSummarySelect {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+}
+
+#dateSummarySelect:focus {
+  border-color: #4CAF50;
+}
+
+.date-summary-detail {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+  color: #555;
+  display: none;
+}
+
+.date-summary-detail.show {
+  display: block;
+}
+
+.date-summary-detail .detail-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 4px 0;
-  font-size: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 3px 0;
 }
 
-.date-summary-item:last-child {
-  border-bottom: none;
+.date-summary-detail .detail-label {
+  color: #666;
 }
 
-.date-summary-item .date-label {
-  color: #555;
-}
-
-.date-summary-item .date-total {
+.date-summary-detail .detail-value {
   font-weight: 600;
   color: #2e7d32;
-}
-
-.date-summary-item .date-count {
-  color: #999;
-  font-size: 11px;
-  margin-left: 8px;
 }
 
 .list-container {

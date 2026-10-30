@@ -17,6 +17,8 @@ let dateFromMaster = '';
 let dateToMaster = '';
 let dateFromCompare = '';
 let dateToCompare = '';
+let dateFromComp = '';
+let dateToComp = '';
 let currentTab = 'master';
 let comparisonFilter = 'all';
 
@@ -367,7 +369,12 @@ function getComparisonData_all() {
     if (m && c) status = m.total === c.amount ? 'match' : 'mismatch';
     else if (m && !c) status = 'only-master';
     else if (!m && c) status = 'only-compare';
-    results.push({ invoiceId: invId, master: m || null, compare: c || null, status: status, diff: (m && c) ? (m.total - c.amount) : 0 });
+    // Date for filtering: use master date if available, else compare date
+    const filterDate = m ? m.date : (c ? c.date : '');
+    // Apply date range filter
+    if (dateFromComp && filterDate < dateFromComp) return;
+    if (dateToComp && filterDate > dateToComp) return;
+    results.push({ invoiceId: invId, master: m || null, compare: c || null, status: status, diff: (m && c) ? (m.total - c.amount) : 0, filterDate: filterDate });
   });
   return results;
 }
@@ -398,11 +405,15 @@ async function loadData() {
     dateToMaster = result.dateToMaster || '';
     dateFromCompare = result.dateFromCompare || '';
     dateToCompare = result.dateToCompare || '';
+    dateFromComp = result.dateFromComp || '';
+    dateToComp = result.dateToComp || '';
 
     document.getElementById('dateFromMaster').value = dateFromMaster;
     document.getElementById('dateToMaster').value = dateToMaster;
     document.getElementById('dateFromCompare').value = dateFromCompare;
     document.getElementById('dateToCompare').value = dateToCompare;
+    document.getElementById('dateFromComp').value = dateFromComp;
+    document.getElementById('dateToComp').value = dateToComp;
 
     renderAll();
 
@@ -672,6 +683,25 @@ document.getElementById('dateSummarySelectMaster').addEventListener('change', (e
 });
 
 // Comparison filter
+document.getElementById('dateFromComp').addEventListener('change', (e) => {
+  dateFromComp = e.target.value;
+  chrome.storage.local.set({ dateFromComp: dateFromComp });
+  renderComparison();
+});
+document.getElementById('dateToComp').addEventListener('change', (e) => {
+  dateToComp = e.target.value;
+  chrome.storage.local.set({ dateToComp: dateToComp });
+  renderComparison();
+});
+document.getElementById('clearDateComp').addEventListener('click', () => {
+  dateFromComp = '';
+  dateToComp = '';
+  document.getElementById('dateFromComp').value = '';
+  document.getElementById('dateToComp').value = '';
+  chrome.storage.local.set({ dateFromComp: '', dateToComp: '' });
+  renderComparison();
+});
+
 document.getElementById('comparisonFilter').addEventListener('change', (e) => {
   comparisonFilter = e.target.value;
   renderComparison();

@@ -269,12 +269,24 @@ function getComparisonData() {
 function renderComparison() {
   const results = getComparisonData();
 
-  // Update summary counts
-  const all = getComparisonData_all();
-  document.getElementById('compMatch').textContent = all.filter(r => r.status === 'match').length;
-  document.getElementById('compOnlyMaster').textContent = all.filter(r => r.status === 'only-master').length;
-  document.getElementById('compOnlyCompare').textContent = all.filter(r => r.status === 'only-compare').length;
-  document.getElementById('compMismatch').textContent = all.filter(r => r.status === 'mismatch').length;
+  // Update summary counts (filtered by search + date, tapi TANPA filter status)
+  const filteredAll = getComparisonData_all().filter(r => {
+    // Apply search filter
+    if (searchComp) {
+      const term = searchComp.toLowerCase();
+      const storeName = r.master ? r.master.store.toLowerCase() : '';
+      const invoiceId = r.invoiceId.toLowerCase();
+      if (!storeName.includes(term) && !invoiceId.includes(term)) return false;
+    }
+    // Apply date filter
+    if (dateFromComp && r.filterDate && r.filterDate < dateFromComp) return false;
+    if (dateToComp && r.filterDate && r.filterDate > dateToComp) return false;
+    return true;
+  });
+  document.getElementById('compMatch').textContent = filteredAll.filter(r => r.status === 'match').length;
+  document.getElementById('compOnlyMaster').textContent = filteredAll.filter(r => r.status === 'only-master').length;
+  document.getElementById('compOnlyCompare').textContent = filteredAll.filter(r => r.status === 'only-compare').length;
+  document.getElementById('compMismatch').textContent = filteredAll.filter(r => r.status === 'mismatch').length;
 
   const list = document.getElementById('listComparison');
   list.innerHTML = '';

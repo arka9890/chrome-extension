@@ -86,7 +86,7 @@ function render() {
     const empty = document.createElement('div');
     empty.className = 'empty';
     if (allData.length === 0) {
-      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik Ã°ÂÂÂ Refresh';
+      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik ÃÂ°ÃÂÃÂÃÂ Refresh';
     } else {
       empty.innerHTML = 'Tidak ada data yang cocok dengan filter.';
     }
@@ -169,18 +169,23 @@ function exportToExcel() {
 
 async function loadData() {
   try {
-    const result = await chrome.storage.local.get(['scrapedData', 'lastScraped', 'pageUrl', 'pageTitle']);
+    const result = await chrome.storage.local.get(['scrapedData', 'lastScraped', 'pageUrl', 'pageTitle', 'dateFrom', 'dateTo']);
     allData = result.scrapedData || [];
     pageUrl = result.pageUrl || '';
     pageTitle = result.pageTitle || '';
+    dateFrom = result.dateFrom || '';
+    dateTo = result.dateTo || '';
+    // Restore date filter inputs
+    document.getElementById('dateFrom').value = dateFrom;
+    document.getElementById('dateTo').value = dateTo;
     renderDateSummary();
     render();
 
     if (result.lastScraped) {
       const date = new Date(result.lastScraped);
       let statusText = 'Terakhir diambil: ' + date.toLocaleString('id-ID');
-      if (pageTitle) statusText += ' Ã¢ÂÂ¢ ' + pageTitle;
-      if (allData.length > 0) statusText += ' Ã¢ÂÂ¢ ' + allData.length + ' data';
+      if (pageTitle) statusText += ' ÃÂ¢ÃÂÃÂ¢ ' + pageTitle;
+      if (allData.length > 0) statusText += ' ÃÂ¢ÃÂÃÂ¢ ' + allData.length + ' data';
       document.getElementById('statusText').textContent = statusText;
     } else {
       document.getElementById('statusText').textContent = 'Belum ada data. Buka halaman target lalu klik Refresh.';
@@ -194,7 +199,7 @@ async function loadData() {
 async function refresh() {
   const btn = document.getElementById('refresh');
   btn.disabled = true;
-  btn.textContent = 'Ã¢ÂÂ³';
+  btn.textContent = 'ÃÂ¢ÃÂÃÂ³';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -204,7 +209,7 @@ async function refresh() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
       btn.disabled = false;
-      btn.textContent = 'Ã°ÂÂÂ';
+      btn.textContent = 'ÃÂ°ÃÂÃÂÃÂ';
 
       if (chrome.runtime.lastError) {
         document.getElementById('statusText').textContent = 'Error: ' + chrome.runtime.lastError.message + '. Reload halaman (F5) lalu coba lagi.';
@@ -228,7 +233,7 @@ async function refresh() {
     });
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = 'Ã°ÂÂÂ';
+    btn.textContent = 'ÃÂ°ÃÂÃÂÃÂ';
     document.getElementById('statusText').textContent = 'Error: ' + e.message;
   }
 }
@@ -258,10 +263,12 @@ document.getElementById('clear').addEventListener('click', clearData);
 document.getElementById('export').addEventListener('click', exportToExcel);
 document.getElementById('dateFrom').addEventListener('change', (e) => {
   dateFrom = e.target.value;
+  chrome.storage.local.set({ dateFrom: dateFrom });
   render();
 });
 document.getElementById('dateTo').addEventListener('change', (e) => {
   dateTo = e.target.value;
+  chrome.storage.local.set({ dateTo: dateTo });
   render();
 });
 document.getElementById('clearDate').addEventListener('click', () => {
@@ -269,6 +276,7 @@ document.getElementById('clearDate').addEventListener('click', () => {
   dateTo = '';
   document.getElementById('dateFrom').value = '';
   document.getElementById('dateTo').value = '';
+  chrome.storage.local.set({ dateFrom: '', dateTo: '' });
   render();
 });
 

@@ -12,12 +12,77 @@ function formatRupiah(num) {
 let allData = [];
 let pageUrl = '';
 let pageTitle = '';
+let selectedDate = '';
+
+function getUniqueDates() {
+  const dates = [...new Set(allData.map(d => d.date))];
+  return dates.sort().reverse();
+}
+
+function populateDateFilter() {
+  const select = document.getElementById('dateFilter');
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">Semua Tanggal</option>';
+  getUniqueDates().forEach(date => {
+    const opt = document.createElement('option');
+    opt.value = date;
+    opt.textContent = date;
+    select.appendChild(opt);
+  });
+  // Restore selection if still valid
+  if (currentValue && getUniqueDates().includes(currentValue)) {
+    select.value = currentValue;
+  }
+  selectedDate = select.value;
+}
+
+function renderDateSummary() {
+  const summaryDiv = document.getElementById('dateSummary');
+  const listDiv = document.getElementById('dateSummaryList');
+  if (allData.length === 0) {
+    summaryDiv.style.display = 'none';
+    return;
+  }
+  summaryDiv.style.display = 'block';
+  listDiv.innerHTML = '';
+
+  // Group by date
+  const byDate = {};
+  allData.forEach(d => {
+    if (!byDate[d.date]) byDate[d.date] = { total: 0, count: 0, kurang: 0 };
+    byDate[d.date].total += d.total || 0;
+    byDate[d.date].kurang += d.kurang || 0;
+    byDate[d.date].count++;
+  });
+
+  Object.keys(byDate).sort().reverse().forEach(date => {
+    const info = byDate[date];
+    const item = document.createElement('div');
+    item.className = 'date-summary-item';
+    item.innerHTML = `
+      <span class="date-label">${escapeHtml(date)}</span>
+      <span>
+        <span class="date-total">${formatRupiah(info.total)}</span>
+        <span class="date-count">(${info.count} data)</span>
+      </span>
+    `;
+    listDiv.appendChild(item);
+  });
+}
 
 function render() {
   const search = document.getElementById('search').value.trim().toLowerCase();
-  const filtered = search
-    ? allData.filter(d => d.store.toLowerCase().includes(search))
-    : allData;
+  let filtered = allData;
+
+  // Filter by date
+  if (selectedDate) {
+    filtered = filtered.filter(d => d.date === selectedDate);
+  }
+
+  // Filter by search
+  if (search) {
+    filtered = filtered.filter(d => d.store.toLowerCase().includes(search));
+  }
 
   const totalAll = filtered.reduce((sum, d) => sum + (d.total || 0), 0);
   const totalKurang = filtered.reduce((sum, d) => sum + (d.kurang || 0), 0);
@@ -35,12 +100,13 @@ function render() {
     if (allData.length === 0) {
       empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik 🔄 Refresh';
     } else {
-      empty.innerHTML = 'Tidak ada data yang cocok dengan pencarian.';
+      empty.innerHTML = 'Tidak ada data yang cocok dengan filter.';
     }
     list.appendChild(empty);
     return;
   }
 
+  // Sort by date descending, then by id descending
   const sorted = [...filtered].sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
     return (b.id || '').localeCompare(a.id || '', undefined, { numeric: true });
@@ -77,12 +143,15 @@ async function loadData() {
     allData = result.scrapedData || [];
     pageUrl = result.pageUrl || '';
     pageTitle = result.pageTitle || '';
+    populateDateFilter();
+    renderDateSummary();
     render();
 
     if (result.lastScraped) {
       const date = new Date(result.lastScraped);
       let statusText = 'Terakhir diambil: ' + date.toLocaleString('id-ID');
       if (pageTitle) statusText += ' • ' + pageTitle;
+      if (allData.length > 0) statusText += ' • ' + allData.length + ' data';
       document.getElementById('statusText').textContent = statusText;
     } else {
       document.getElementById('statusText').textContent = 'Belum ada data. Buka halaman target lalu klik Refresh.';
@@ -118,13 +187,15 @@ async function refresh() {
           allData = response.data;
           pageUrl = response.url || '';
           pageTitle = response.title || '';
+          populateDateFilter();
+          renderDateSummary();
           render();
           document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data dari ' + (response.title || response.url);
         } else {
-          document.getElementById('statusText').textContent = 'Tidak ada data ditemukan di halaman ini.';
+          document.getElementById('statusText').textContent = 'Tidak ada data ditemukan di halaman ini. Coba reload halaman (F5).';
         }
       } else {
-        document.getElementById('statusText').textContent = 'Tidak ada respons dari content script.';
+        document.getElementById('statusText').textContent = 'Tidak ada respons dari content script. Reload halaman (F5).';
       }
     });
   } catch (e) {
@@ -144,6 +215,8 @@ async function clearData() {
     }
     await chrome.storage.local.remove(['scrapedData', 'lastScraped', 'pageUrl', 'pageTitle']);
     allData = [];
+    populateDateFilter();
+    renderDateSummary();
     render();
     document.getElementById('statusText').textContent = 'Data dihapus.';
   } catch (e) {
@@ -151,12 +224,19 @@ async function clearData() {
   }
 }
 
+// Event listeners
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('refresh').addEventListener('click', refresh);
 document.getElementById('clear').addEventListener('click', clearData);
+document.getElementById('dateFilter').addEventListener('change', (e) => {
+  selectedDate = e.target.value;
+  render();
+});
 
+// Load data saat popup dibuka
 loadData();
 
+// Auto-refresh jika belum ada data
 chrome.storage.local.get(['scrapedData'], (result) => {
   if (!result.scrapedData || result.scrapedData.length === 0) {
     refresh();

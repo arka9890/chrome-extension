@@ -21,6 +21,7 @@ let dateFromComp = '';
 let dateToComp = '';
 let currentTab = 'master';
 let comparisonFilter = 'all';
+let searchComp = '';
 
 // ===== Tab switching =====
 function switchTab(tab) {
@@ -387,9 +388,19 @@ function getComparisonData_all() {
 }
 
 function getComparisonData() {
-  const all = getComparisonData_all();
+  let all = getComparisonData_all();
+  // Filter by comparison status
   if (comparisonFilter !== 'all') {
-    return all.filter(r => r.status === comparisonFilter);
+    all = all.filter(r => r.status === comparisonFilter);
+  }
+  // Filter by search (nama toko / invoice ID)
+  if (searchComp) {
+    const term = searchComp.toLowerCase();
+    all = all.filter(r => {
+      const storeName = r.master ? r.master.store.toLowerCase() : '';
+      const invoiceId = r.invoiceId.toLowerCase();
+      return storeName.includes(term) || invoiceId.includes(term);
+    });
   }
   return all;
 }
@@ -706,6 +717,11 @@ document.getElementById('clearDateComp').addEventListener('click', () => {
   document.getElementById('dateFromComp').value = '';
   document.getElementById('dateToComp').value = '';
   chrome.storage.local.set({ dateFromComp: '', dateToComp: '' });
+  renderComparison();
+});
+
+document.getElementById('searchComp').addEventListener('input', (e) => {
+  searchComp = e.target.value.trim();
   renderComparison();
 });
 

@@ -29,11 +29,11 @@ Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko
 
 1. Buka website yang berisi data (halaman 1)
 2. Data otomatis terambil (atau klik Refresh)
-3. Buka halaman 2 (page berikutnya) → data otomatis terambil & digabung
+3. Buka halaman 2 (page berikutnya) â data otomatis terambil & digabung
 4. Data dari semua halaman terakumulasi (tidak saling menimpa)
 5. Gunakan search box untuk cari nama toko
 6. Gunakan filter tanggal (Dari/Sampai) untuk filter range tanggal
-7. Klik tombol Hapus (✕) untuk reset filter tanggal
+7. Klik tombol Hapus (â) untuk reset filter tanggal
 8. Ringkasan per tanggal ditampilkan di bawah kartu summary
 9. Klik tombol Export untuk download data ke CSV (buka di Excel)
 
@@ -65,7 +65,7 @@ Jadi tidak perlu klik Refresh manual saat pindah halaman.
 ## Catatan Penting
 
 - **Data terakumulasi**: Saat scrape halaman baru, data lama TIDAK hilang. Data baru digabung dengan data lama (deduplikasi berdasarkan ID+tanggal).
-- Untuk menghapus semua data, klik tombol "Hapus" (🗑️)
+- Untuk menghapus semua data, klik tombol "Hapus" (ðï¸)
 - Export akan menyertakan semua data yang terakumulasi
 
 ## Troubleshooting

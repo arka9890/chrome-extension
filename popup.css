@@ -6,8 +6,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  width: 440px;
-  max-height: 620px;
+  width: 460px;
+  max-height: 640px;
   background: #f8f9fa;
   color: #333;
 }
@@ -72,32 +72,58 @@ h1 {
   cursor: not-allowed;
 }
 
-.filter-row {
+.date-range {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.filter-row label {
-  font-size: 13px;
+.date-range-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.date-range-group label {
+  font-size: 12px;
   color: #666;
   white-space: nowrap;
 }
 
-#dateFilter {
+.date-range-group input[type="date"] {
   flex: 1;
-  padding: 7px 10px;
+  padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   outline: none;
   background: white;
   cursor: pointer;
+  min-width: 0;
 }
 
-#dateFilter:focus {
+.date-range-group input[type="date"]:focus {
   border-color: #4CAF50;
+}
+
+.btn-clear-date {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #999;
+  transition: background 0.2s;
+}
+
+.btn-clear-date:hover {
+  background: #ffebee;
+  color: #c62828;
 }
 
 .summary-card {
@@ -180,7 +206,7 @@ h1 {
 }
 
 .list-container {
-  max-height: 280px;
+  max-height: 260px;
   overflow-y: auto;
   margin-bottom: 8px;
 }
@@ -275,6 +301,7 @@ footer {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid #eee;
+  gap: 8px;
 }
 
 .status-text {
@@ -284,6 +311,27 @@ footer {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.footer-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-export {
+  padding: 4px 10px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-export:hover {
+  background: #1565c0;
 }
 
 .btn-clear {

@@ -184,8 +184,30 @@
     return data;
   }
 
-  setTimeout(scrapeData, 1500);
+  // Scrape awal dengan retry (untuk halaman yang load data via AJAX)
+  let scrapeAttempts = 0;
+  const maxAttempts = 5;
+  function tryScrape() {
+    scrapeAttempts++;
+    const data = scrapeData();
+    if (data.length === 0 && scrapeAttempts < maxAttempts) {
+      setTimeout(tryScrape, 2000);
+    }
+  }
+  setTimeout(tryScrape, 1500);
 
+  // Deteksi perubahan URL (untuk SPA / navigasi tanpa full reload)
+  let lastUrl = window.location.href;
+  const urlObserver = new MutationObserver(() => {
+    if (window.location.href !== lastUrl) {
+      lastUrl = window.location.href;
+      scrapeAttempts = 0;
+      setTimeout(tryScrape, 1500);
+    }
+  });
+  urlObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+
+  // Re-scrape saat DOM berubah (debounced)
   let debounceTimer = null;
   let lastTextLength = 0;
   const observer = new MutationObserver(() => {
@@ -194,13 +216,20 @@
     lastTextLength = currentLength;
 
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(scrapeData, 2000);
+    debounceTimer = setTimeout(() => {
+      scrapeData();
+    }, 2000);
   });
 
   if (document.body) {
     observer.observe(document.body, { childList: true, subtree: true });
     lastTextLength = document.body.innerText ? document.body.innerText.length : 0;
   }
+
+  // Periodic re-scrape setiap 10 detik (fallback untuk halaman yang tidak trigger observer)
+  setInterval(() => {
+    scrapeData();
+  }, 10000);
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'scrape') {

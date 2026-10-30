@@ -571,10 +571,6 @@ async function clearData() {
   if (!confirm(confirmMsg)) return;
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab && tab.id) {
-      chrome.tabs.sendMessage(tab.id, { action: 'clear' }, () => {});
-    }
     await chrome.storage.local.remove([storageKey]);
     if (storageKey === 'masterData') {
       masterData = [];

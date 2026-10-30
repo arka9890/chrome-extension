@@ -12,28 +12,27 @@ function formatRupiah(num) {
 let allData = [];
 let pageUrl = '';
 let pageTitle = '';
-let selectedDate = '';
+let dateFrom = '';
+let dateTo = '';
 
-function getUniqueDates() {
-  const dates = [...new Set(allData.map(d => d.date))];
-  return dates.sort().reverse();
-}
+function getFilteredData() {
+  const search = document.getElementById('search').value.trim().toLowerCase();
+  let filtered = allData;
 
-function populateDateFilter() {
-  const select = document.getElementById('dateFilter');
-  const currentValue = select.value;
-  select.innerHTML = '<option value="">Semua Tanggal</option>';
-  getUniqueDates().forEach(date => {
-    const opt = document.createElement('option');
-    opt.value = date;
-    opt.textContent = date;
-    select.appendChild(opt);
-  });
-  // Restore selection if still valid
-  if (currentValue && getUniqueDates().includes(currentValue)) {
-    select.value = currentValue;
+  // Filter by date range
+  if (dateFrom) {
+    filtered = filtered.filter(d => d.date >= dateFrom);
   }
-  selectedDate = select.value;
+  if (dateTo) {
+    filtered = filtered.filter(d => d.date <= dateTo);
+  }
+
+  // Filter by search
+  if (search) {
+    filtered = filtered.filter(d => d.store.toLowerCase().includes(search));
+  }
+
+  return filtered;
 }
 
 function renderDateSummary() {
@@ -71,18 +70,7 @@ function renderDateSummary() {
 }
 
 function render() {
-  const search = document.getElementById('search').value.trim().toLowerCase();
-  let filtered = allData;
-
-  // Filter by date
-  if (selectedDate) {
-    filtered = filtered.filter(d => d.date === selectedDate);
-  }
-
-  // Filter by search
-  if (search) {
-    filtered = filtered.filter(d => d.store.toLowerCase().includes(search));
-  }
+  const filtered = getFilteredData();
 
   const totalAll = filtered.reduce((sum, d) => sum + (d.total || 0), 0);
   const totalKurang = filtered.reduce((sum, d) => sum + (d.kurang || 0), 0);
@@ -137,13 +125,54 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function exportToExcel() {
+  const filtered = getFilteredData();
+  if (filtered.length === 0) {
+    alert('Tidak ada data untuk di-export.');
+    return;
+  }
+
+  // Sort by date descending
+  const sorted = [...filtered].sort((a, b) => {
+    if (a.date !== b.date) return b.date.localeCompare(a.date);
+    return (b.id || '').localeCompare(a.id || '', undefined, { numeric: true });
+  });
+
+  // Build CSV with BOM for Excel UTF-8 compatibility
+  const BOM = '\uFEFF';
+  const headers = ['ID Order', 'Tanggal', 'Nama Toko', 'Total (Rp)', 'Kurang (Rp)', 'Status'];
+  const rows = sorted.map(d => [
+    '#' + d.id,
+    d.date,
+    '"' + (d.store || '').replace(/"/g, '""') + '"',
+    d.total || 0,
+    d.kurang || 0,
+    d.status || ''
+  ]);
+
+  const csvContent = BOM + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+  // Download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.download = 'data-toko-' + dateStr + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  document.getElementById('statusText').textContent = 'Export berhasil! ' + filtered.length + ' data di-export ke CSV (buka di Excel).';
+}
+
 async function loadData() {
   try {
     const result = await chrome.storage.local.get(['scrapedData', 'lastScraped', 'pageUrl', 'pageTitle']);
     allData = result.scrapedData || [];
     pageUrl = result.pageUrl || '';
     pageTitle = result.pageTitle || '';
-    populateDateFilter();
     renderDateSummary();
     render();
 
@@ -187,7 +216,6 @@ async function refresh() {
           allData = response.data;
           pageUrl = response.url || '';
           pageTitle = response.title || '';
-          populateDateFilter();
           renderDateSummary();
           render();
           document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data dari ' + (response.title || response.url);
@@ -215,7 +243,6 @@ async function clearData() {
     }
     await chrome.storage.local.remove(['scrapedData', 'lastScraped', 'pageUrl', 'pageTitle']);
     allData = [];
-    populateDateFilter();
     renderDateSummary();
     render();
     document.getElementById('statusText').textContent = 'Data dihapus.';
@@ -228,8 +255,20 @@ async function clearData() {
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('refresh').addEventListener('click', refresh);
 document.getElementById('clear').addEventListener('click', clearData);
-document.getElementById('dateFilter').addEventListener('change', (e) => {
-  selectedDate = e.target.value;
+document.getElementById('export').addEventListener('click', exportToExcel);
+document.getElementById('dateFrom').addEventListener('change', (e) => {
+  dateFrom = e.target.value;
+  render();
+});
+document.getElementById('dateTo').addEventListener('change', (e) => {
+  dateTo = e.target.value;
+  render();
+});
+document.getElementById('clearDate').addEventListener('click', () => {
+  dateFrom = '';
+  dateTo = '';
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
   render();
 });
 

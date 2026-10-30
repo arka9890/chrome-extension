@@ -19,7 +19,6 @@ function getFilteredData() {
   const search = document.getElementById('search').value.trim().toLowerCase();
   let filtered = allData;
 
-  // Filter by date range
   if (dateFrom) {
     filtered = filtered.filter(d => d.date >= dateFrom);
   }
@@ -27,7 +26,6 @@ function getFilteredData() {
     filtered = filtered.filter(d => d.date <= dateTo);
   }
 
-  // Filter by search
   if (search) {
     filtered = filtered.filter(d => d.store.toLowerCase().includes(search));
   }
@@ -45,7 +43,6 @@ function renderDateSummary() {
   }
   summaryDiv.style.display = 'block';
 
-  // Group by date
   const byDate = {};
   allData.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { total: 0, count: 0, kurang: 0 };
@@ -56,7 +53,6 @@ function renderDateSummary() {
 
   const dates = Object.keys(byDate).sort().reverse();
 
-  // Populate dropdown
   const currentValue = select.value;
   select.innerHTML = '<option value="">-- Pilih Tanggal --</option>';
   dates.forEach(date => {
@@ -67,7 +63,6 @@ function renderDateSummary() {
     select.appendChild(opt);
   });
 
-  // Restore selection
   if (currentValue && dates.includes(currentValue)) {
     select.value = currentValue;
     showDateDetail(currentValue, byDate);
@@ -88,15 +83,15 @@ function showDateDetail(date, byDate) {
   detail.classList.add('show');
   detail.innerHTML = `
     <div class="detail-row">
-      <span class="detail-label">💰 Total Uang</span>
+      <span class="detail-label">Total Uang</span>
       <span class="detail-value">${formatRupiah(info.total)}</span>
     </div>
     <div class="detail-row">
-      <span class="detail-label">📉 Total Kurang</span>
+      <span class="detail-label">Total Kurang</span>
       <span class="detail-value" style="color:#c62828;">${formatRupiah(info.kurang)}</span>
     </div>
     <div class="detail-row">
-      <span class="detail-label">📊 Jumlah Data</span>
+      <span class="detail-label">Jumlah Data</span>
       <span class="detail-value" style="color:#1976d2;">${info.count} data</span>
     </div>
   `;
@@ -119,7 +114,7 @@ function render() {
     const empty = document.createElement('div');
     empty.className = 'empty';
     if (allData.length === 0) {
-      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ Refresh';
+      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik Refresh';
     } else {
       empty.innerHTML = 'Tidak ada data yang cocok dengan filter.';
     }
@@ -127,7 +122,6 @@ function render() {
     return;
   }
 
-  // Sort by date descending, then by id descending
   const sorted = [...filtered].sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
     return (b.id || '').localeCompare(a.id || '', undefined, { numeric: true });
@@ -165,14 +159,13 @@ function exportToExcel() {
     return;
   }
 
-  // Sort by date descending
   const sorted = [...filtered].sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date);
     return (b.id || '').localeCompare(a.id || '', undefined, { numeric: true });
   });
 
-  // Build CSV with BOM for Excel UTF-8 compatibility
   const BOM = '\uFEFF';
+  const sep = ';';
   const headers = ['ID Order', 'Tanggal', 'Nama Toko', 'Total (Rp)', 'Kurang (Rp)', 'Status'];
   const rows = sorted.map(d => [
     '#' + d.id,
@@ -183,9 +176,8 @@ function exportToExcel() {
     d.status || ''
   ]);
 
-  const csvContent = BOM + [headers.join(';'), ...rows.map(r => r.join(';'))].join('\r\n');
+  const csvContent = BOM + [headers.join(sep), ...rows.map(r => r.join(sep))].join('\r\n');
 
-  // Download
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -208,7 +200,6 @@ async function loadData() {
     pageTitle = result.pageTitle || '';
     dateFrom = result.dateFrom || '';
     dateTo = result.dateTo || '';
-    // Restore date filter inputs
     document.getElementById('dateFrom').value = dateFrom;
     document.getElementById('dateTo').value = dateTo;
     renderDateSummary();
@@ -217,8 +208,8 @@ async function loadData() {
     if (result.lastScraped) {
       const date = new Date(result.lastScraped);
       let statusText = 'Terakhir diambil: ' + date.toLocaleString('id-ID');
-      if (pageTitle) statusText += ' ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¢ ' + pageTitle;
-      if (allData.length > 0) statusText += ' ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¢ ' + allData.length + ' data';
+      if (pageTitle) statusText += ' - ' + pageTitle;
+      if (allData.length > 0) statusText += ' - ' + allData.length + ' data (terakumulasi)';
       document.getElementById('statusText').textContent = statusText;
     } else {
       document.getElementById('statusText').textContent = 'Belum ada data. Buka halaman target lalu klik Refresh.';
@@ -232,7 +223,7 @@ async function loadData() {
 async function refresh() {
   const btn = document.getElementById('refresh');
   btn.disabled = true;
-  btn.textContent = 'ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ³';
+  btn.textContent = 'Loading...';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -242,7 +233,7 @@ async function refresh() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
       btn.disabled = false;
-      btn.textContent = 'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ';
+      btn.textContent = 'Refresh';
 
       if (chrome.runtime.lastError) {
         document.getElementById('statusText').textContent = 'Error: ' + chrome.runtime.lastError.message + '. Reload halaman (F5) lalu coba lagi.';
@@ -252,11 +243,26 @@ async function refresh() {
       if (response && response.data) {
         if (response.data.length > 0) {
           allData = response.data;
-          pageUrl = response.url || '';
-          pageTitle = response.title || '';
-          renderDateSummary();
-          render();
-          document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data baru ditambahkan. Total: ' + allData.length + ' data (terakumulasi)';
+          // Merge with existing
+          chrome.storage.local.get(['scrapedData'], (res) => {
+            const existing = res.scrapedData || [];
+            const seen = new Set(existing.map(d => d.id + '|' + d.date));
+            const merged = [...existing];
+            response.data.forEach(d => {
+              const key = d.id + '|' + d.date;
+              if (!seen.has(key)) {
+                seen.add(key);
+                merged.push(d);
+              }
+            });
+            allData = merged;
+            chrome.storage.local.set({ scrapedData: merged });
+            pageUrl = response.url || '';
+            pageTitle = response.title || '';
+            renderDateSummary();
+            render();
+            document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data baru ditambahkan. Total: ' + allData.length + ' data (terakumulasi)';
+          });
         } else {
           document.getElementById('statusText').textContent = 'Tidak ada data ditemukan di halaman ini. Coba reload halaman (F5).';
         }
@@ -266,7 +272,7 @@ async function refresh() {
     });
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = 'ÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂ';
+    btn.textContent = 'Refresh';
     document.getElementById('statusText').textContent = 'Error: ' + e.message;
   }
 }
@@ -289,7 +295,6 @@ async function clearData() {
   }
 }
 
-// Event listeners
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('refresh').addEventListener('click', refresh);
 document.getElementById('clear').addEventListener('click', clearData);
@@ -304,6 +309,14 @@ document.getElementById('dateTo').addEventListener('change', (e) => {
   chrome.storage.local.set({ dateTo: dateTo });
   render();
 });
+document.getElementById('clearDate').addEventListener('click', () => {
+  dateFrom = '';
+  dateTo = '';
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  chrome.storage.local.set({ dateFrom: '', dateTo: '' });
+  render();
+});
 document.getElementById('dateSummarySelect').addEventListener('change', (e) => {
   const date = e.target.value;
   if (!date) {
@@ -311,7 +324,6 @@ document.getElementById('dateSummarySelect').addEventListener('change', (e) => {
     document.getElementById('dateSummaryDetail').innerHTML = '';
     return;
   }
-  // Group by date
   const byDate = {};
   allData.forEach(d => {
     if (!byDate[d.date]) byDate[d.date] = { total: 0, count: 0, kurang: 0 };
@@ -322,19 +334,8 @@ document.getElementById('dateSummarySelect').addEventListener('change', (e) => {
   showDateDetail(date, byDate);
 });
 
-document.getElementById('clearDate').addEventListener('click', () => {
-  dateFrom = '';
-  dateTo = '';
-  document.getElementById('dateFrom').value = '';
-  document.getElementById('dateTo').value = '';
-  chrome.storage.local.set({ dateFrom: '', dateTo: '' });
-  render();
-});
-
-// Load data saat popup dibuka
 loadData();
 
-// Auto-refresh jika belum ada data
 chrome.storage.local.get(['scrapedData'], (result) => {
   if (!result.scrapedData || result.scrapedData.length === 0) {
     refresh();

@@ -1,68 +1,73 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Scraper Data Toko</title>
- <link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scraper Data Toko</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
- <div class="container">
- <header>
- <h1> Scraper Data Toko</h1>
- <p class="subtitle">Ambil data, cari by nama toko, filter tanggal, export Excel</p>
- </header>
+  <div class="container">
+    <header>
+      <h1>Scraper Data Toko</h1>
+      <p class="subtitle">Ambil data, cari by nama toko, filter tanggal, export Excel</p>
+    </header>
 
- <div class="controls">
- <input type="text" id="search" placeholder=" Cari nama toko..." autocomplete="off">
- <button id="refresh" title="Refresh data dari halaman aktif"></button>
- </div>
+    <div class="controls">
+      <input type="text" id="search" placeholder="Cari nama toko..." autocomplete="off">
+      <button id="refresh" title="Refresh data dari halaman aktif">Refresh</button>
+    </div>
 
- <div class="date-range">
- <div class="date-range-group">
- <label for="dateFrom"> Dari:</label>
- <input type="date" id="dateFrom">
- </div>
- <div class="date-range-group">
- <label for="dateTo"> Sampai:</label>
- <input type="date" id="dateTo">
- </div>
- <button id="clearDate" class="btn-clear-date" title="Hapus filter tanggal">X</button>
- </div>
+    <div class="date-range">
+      <div class="date-range-group">
+        <label for="dateFrom">Dari:</label>
+        <input type="date" id="dateFrom">
+      </div>
+      <div class="date-range-group">
+        <label for="dateTo">Sampai:</label>
+        <input type="date" id="dateTo">
+      </div>
+      <button id="clearDate" class="btn-clear-date" title="Hapus filter tanggal">X</button>
+    </div>
 
- <div class="summary-card">
- <div class="summary-row">
- <span class="label"> Total Uang</span>
- <span class="value total" id="totalAll">Rp 0</span>
- </div>
- <div class="summary-row">
- <span class="label"> Total Kurang</span>
- <span class="value kurang" id="totalKurang">Rp 0</span>
- </div>
- <div class="summary-row">
- <span class="label"> Jumlah Data</span>
- <span class="value" id="count">0</span>
- </div>
- </div>
+    <div class="summary-card">
+      <div class="summary-row">
+        <span class="label">Total Uang</span>
+        <span class="value total" id="totalAll">Rp 0</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Total Kurang</span>
+        <span class="value kurang" id="totalKurang">Rp 0</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Jumlah Data</span>
+        <span class="value" id="count">0</span>
+      </div>
+    </div>
 
- <div class="date-summary" id="dateSummary" style="display:none;">
- <h3> Ringkasan Per Tanggal</h3>
- <div id="dateSummaryList"></div>
- </div>
+    <div class="date-summary-dropdown" id="dateSummary" style="display:none;">
+      <div class="date-summary-header">
+        <label for="dateSummarySelect">Ringkasan Per Tanggal:</label>
+        <select id="dateSummarySelect">
+          <option value="">-- Pilih Tanggal --</option>
+        </select>
+      </div>
+      <div id="dateSummaryDetail" class="date-summary-detail"></div>
+    </div>
 
- <div class="list-container">
- <div id="list" class="list"></div>
- </div>
+    <div class="list-container">
+      <div id="list" class="list"></div>
+    </div>
 
- <footer>
- <div id="statusText" class="status-text"></div>
- <div class="footer-btns">
- <button id="export" class="btn-export" title="Export ke Excel/CSV"> Export</button>
- <button id="clear" class="btn-clear" title="Hapus semua data">ðï¸ Hapus</button>
- </div>
- </footer>
- </div>
+    <footer>
+      <div id="statusText" class="status-text"></div>
+      <div class="footer-btns">
+        <button id="export" class="btn-export" title="Export ke Excel/CSV">Export</button>
+        <button id="clear" class="btn-clear" title="Hapus semua data">Hapus</button>
+      </div>
+    </footer>
+  </div>
 
- <script src="popup.js"></script>
+  <script src="popup.js"></script>
 </body>
 </html>

@@ -86,7 +86,7 @@ function render() {
     const empty = document.createElement('div');
     empty.className = 'empty';
     if (allData.length === 0) {
-      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik ð Refresh';
+      empty.innerHTML = 'Belum ada data.<br>Buka halaman target lalu klik Ã°ÂÂÂ Refresh';
     } else {
       empty.innerHTML = 'Tidak ada data yang cocok dengan filter.';
     }
@@ -179,8 +179,8 @@ async function loadData() {
     if (result.lastScraped) {
       const date = new Date(result.lastScraped);
       let statusText = 'Terakhir diambil: ' + date.toLocaleString('id-ID');
-      if (pageTitle) statusText += ' â¢ ' + pageTitle;
-      if (allData.length > 0) statusText += ' â¢ ' + allData.length + ' data';
+      if (pageTitle) statusText += ' Ã¢ÂÂ¢ ' + pageTitle;
+      if (allData.length > 0) statusText += ' Ã¢ÂÂ¢ ' + allData.length + ' data';
       document.getElementById('statusText').textContent = statusText;
     } else {
       document.getElementById('statusText').textContent = 'Belum ada data. Buka halaman target lalu klik Refresh.';
@@ -194,7 +194,7 @@ async function loadData() {
 async function refresh() {
   const btn = document.getElementById('refresh');
   btn.disabled = true;
-  btn.textContent = 'â³';
+  btn.textContent = 'Ã¢ÂÂ³';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -204,7 +204,7 @@ async function refresh() {
 
     chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
       btn.disabled = false;
-      btn.textContent = 'ð';
+      btn.textContent = 'Ã°ÂÂÂ';
 
       if (chrome.runtime.lastError) {
         document.getElementById('statusText').textContent = 'Error: ' + chrome.runtime.lastError.message + '. Reload halaman (F5) lalu coba lagi.';
@@ -218,7 +218,7 @@ async function refresh() {
           pageTitle = response.title || '';
           renderDateSummary();
           render();
-          document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data dari ' + (response.title || response.url);
+          document.getElementById('statusText').textContent = 'Berhasil! ' + response.data.length + ' data baru ditambahkan. Total: ' + allData.length + ' data (terakumulasi)';
         } else {
           document.getElementById('statusText').textContent = 'Tidak ada data ditemukan di halaman ini. Coba reload halaman (F5).';
         }
@@ -228,7 +228,7 @@ async function refresh() {
     });
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = 'ð';
+    btn.textContent = 'Ã°ÂÂÂ';
     document.getElementById('statusText').textContent = 'Error: ' + e.message;
   }
 }

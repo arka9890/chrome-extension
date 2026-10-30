@@ -396,7 +396,7 @@ function escapeHtml(str) {
 // ===== Data loading =====
 async function loadData() {
   try {
-    const result = await chrome.storage.local.get(['masterData', 'compareData', 'lastScraped', 'pageUrl', 'pageTitle', 'dateFromMaster', 'dateToMaster', 'dateFromCompare', 'dateToCompare']);
+    const result = await chrome.storage.local.get(['masterData', 'compareData', 'lastScraped', 'pageUrl', 'pageTitle', 'dateFromMaster', 'dateToMaster', 'dateFromCompare', 'dateToCompare', 'dateFromComp', 'dateToComp']);
     masterData = result.masterData || [];
     compareData = result.compareData || [];
     pageUrl = result.pageUrl || '';

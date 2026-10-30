@@ -5,6 +5,7 @@ Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko
 ## Fitur
 
 - Ambil data otomatis dari halaman web (4 strategi scraping)
+- Auto-scrape di setiap halaman (retry + deteksi perubahan URL + periodic)
 - Cari berdasarkan nama toko (real-time)
 - Filter tanggal range (Dari - Sampai)
 - Ringkasan per tanggal (total & jumlah per hari)
@@ -27,8 +28,8 @@ Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko
 ## Cara Pakai
 
 1. Buka website yang berisi data (halaman 1)
-2. Klik ikon ekstensi → data otomatis terambil
-3. Buka halaman 2 (page berikutnya) → klik Refresh → data halaman 2 ditambahkan
+2. Data otomatis terambil (atau klik Refresh)
+3. Buka halaman 2 (page berikutnya) → data otomatis terambil & digabung
 4. Data dari semua halaman terakumulasi (tidak saling menimpa)
 5. Gunakan search box untuk cari nama toko
 6. Gunakan filter tanggal (Dari/Sampai) untuk filter range tanggal
@@ -42,6 +43,16 @@ Ekstensi Chrome untuk mengambil data dari website, mencari berdasarkan nama toko
 #84032 2026-10-29 | Azfar Jaya Abadi H.Unub
 Total Rp 2,796,250 | Kurang Rp 2,796,250	ready
 ```
+
+## Auto-Scrape di Setiap Halaman
+
+Extension secara otomatis:
+- Scrape saat halaman load (dengan retry 5x jika data belum muncul)
+- Deteksi perubahan URL (untuk SPA / navigasi tanpa full reload)
+- Re-scrape setiap 10 detik (fallback)
+- Re-scrape saat DOM berubah (MutationObserver)
+
+Jadi tidak perlu klik Refresh manual saat pindah halaman.
 
 ## Export ke Excel
 
@@ -59,7 +70,7 @@ Total Rp 2,796,250 | Kurang Rp 2,796,250	ready
 
 ## Troubleshooting
 
-- Data tidak muncul / tidak lengkap: Pastikan halaman sudah fully loaded, lalu klik Refresh
+- Data tidak muncul / tidak lengkap: Pastikan halaman sudah fully loaded. Extension akan retry otomatis.
 - Format data berbeda: Sesuaikan regex di content.js
 - Export tidak jalan: Pastikan ada data yang ditampilkan (tidak kosong)
 

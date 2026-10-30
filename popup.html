@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scraper Data Toko</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Scraper Data Toko</h1>
+      <p class="subtitle">Ambil data dari website, cari by nama toko</p>
+    </header>
+
+    <div class="controls">
+      <input type="text" id="search" placeholder="🔍 Cari nama toko..." autocomplete="off">
+      <button id="refresh" title="Refresh data dari halaman aktif">🔄</button>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-row">
+        <span class="label">💰 Total Uang</span>
+        <span class="value total" id="totalAll">Rp 0</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">📉 Total Kurang</span>
+        <span class="value kurang" id="totalKurang">Rp 0</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">📊 Jumlah Data</span>
+        <span class="value" id="count">0</span>
+      </div>
+    </div>
+
+    <div class="list-container">
+      <div id="list" class="list"></div>
+    </div>
+
+    <footer>
+      <div id="statusText" class="status-text"></div>
+      <button id="clear" class="btn-clear" title="Hapus semua data">🗑️ Hapus</button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

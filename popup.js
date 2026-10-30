@@ -344,9 +344,16 @@ function renderComparison() {
       `;
     }
 
+    // Store name subtitle
+    const storeName = r.master ? r.master.store : (r.compare ? '' : '');
+    const storeSubtitle = storeName ? '<div class="comp-store-name">' + escapeHtml(storeName) + '</div>' : '';
+
     item.innerHTML = `
       <div class="comp-item-header">
-        <span class="comp-invoice-id">Invoice #${escapeHtml(r.invoiceId)}</span>
+        <div>
+          <span class="comp-invoice-id">Invoice #${escapeHtml(r.invoiceId)}</span>
+          ${storeSubtitle}
+        </div>
         <span class="comp-badge ${badgeClass}">${badgeText}</span>
       </div>
       <div class="comp-details">${detailsHtml}</div>
